@@ -47,7 +47,7 @@ while(1):
     elif cmd.find("grade") == 0:
         print("\nmake sure you have already got a colour image!\n")
         if param != 0 and file_name != 0:
-            if input("\nuse previous file and scale? y/n\n").find("n") == 0:
+            if input("use previous file and scale? y/n\n").find("n") == 0:
                 file_name = input("enter file name to be graded\n")
                 param = input("\nenter scale\n")
         else:
