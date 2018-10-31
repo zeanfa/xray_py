@@ -41,7 +41,7 @@ def linear(file_name):
         for j in range(height):
             pixel = init_im.getpixel((i, j))
             lin_pixel = int(255*(pixel[0] - min_color)/(max_color - min_color))
-            lin_image_pix[i, j] = (int(pixel[0]), int(pixel[0]), int(pixel[0]))
+            lin_image_pix[i, j] = (int(lin_pixel), int(lin_pixel), int(lin_pixel))
             
     
     del draw

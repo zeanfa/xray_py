@@ -12,7 +12,7 @@ linear_file_name = 0
 param = 0
 
 while(1):
-    cmd = input("\nChoose option:\nhelp scale filter grade\n")
+    cmd = input("\nChoose option:\nhelp scale equal grade\n")
     #print(cmd)
     if cmd.find("help") == 0:
        print("\nThis app helps you to colour Xray photographs")
@@ -28,7 +28,7 @@ while(1):
         print("r - red")
         print("m - purple (magenta)")
         print("g - green")
-        print("c - cyan (light blue)")
+        print("c - light blue (cyan)")
         print("y - yellow")
         print("w - white")
         print("k must be the first and w must be the last\n")
@@ -48,9 +48,9 @@ while(1):
         
     elif cmd.find("equal") == 0:
         print("\nequalizing may take some time, you'll have to wait")
-        file_name = input("\nenter file name to filter\n")
+        file_name = input("\nenter file name to equalize\n")
         flt.equalize(folder_name + "/" + file_name)
-        print("filtering done\n")
+        print("equalization done\n")
         
     elif cmd.find("grade") == 0:
         print("\nmake sure you have already got a colour image!\n")
