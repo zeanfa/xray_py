@@ -31,7 +31,7 @@ def solve_sys(number, Ff, Fl, Ef, El, Ef2, El2, Mx, draw, Vr_arr, Vg_arr, Vb_arr
                    fill =(int(round(255*col_arr[0])), int(round(255*col_arr[1])), int(round(255*col_arr[2]))),
                    outline =(int(round(255*col_arr[0])), int(round(255*col_arr[1])), int(round(255*col_arr[2]))))
 
-def get_scale(param, name):
+def get_scale(param, name, bd_graphs, td_graphs, other):
     
     lr = 0.3
     lg = 0.59
@@ -112,65 +112,99 @@ def get_scale(param, name):
     del draw
     image.save(name + ".png", "PNG")
 
-    # 2D graph
-    Rel_red_arr = list(map(lambda x: x/255, Vr_arr))
-    Rel_green_arr = list(map(lambda x: x/255, Vg_arr))
-    Rel_blue_arr = list(map(lambda x: x/255, Vb_arr))
+    if bd_graphs:
+        # 2D graph
+        Rel_red_arr = list(map(lambda x: x/255, Vr_arr))
+        Rel_green_arr = list(map(lambda x: x/255, Vg_arr))
+        Rel_blue_arr = list(map(lambda x: x/255, Vb_arr))
 
-    for i in range(0, 256):
-        f_arr.append(i*1/255)
+        for i in range(0, 256):
+            f_arr.append(i*1/255)
 
-    f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
-    
-    ax1.plot(f_arr, Rel_red_arr, "r")
-    ax1.set_ylabel("R")
-    ax2.plot(f_arr, Rel_green_arr, "g")
-    ax2.set_ylabel("G")
-    ax3.plot(f_arr, Rel_blue_arr, "b")
-    ax3.set_ylabel("B")
-    plt.xlabel("Яркость исходной рентгенограммы")
-    plt.savefig(name + "_plot.png")
+        f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
+        
+        ax1.plot(f_arr, Rel_red_arr, "r")
+        ax1.set_ylabel("R", fontsize = 15, rotation = 0, labelpad = 10)
+        ax1.plot((0, 1), (1, 1), 'k--')
+        ax2.plot(f_arr, Rel_green_arr, "g")
+        ax2.set_ylabel("G", fontsize = 15, rotation = 0, labelpad = 10)
+        ax2.plot((0, 1), (1, 1), 'k--')
+        ax3.plot(f_arr, Rel_blue_arr, "b")
+        ax3.set_ylabel("B", fontsize = 15, rotation = 0, labelpad = 10)
+        ax3.plot((0, 1), (1, 1), 'k--')
+        plt.xlabel("Относительная яркость исходной рентгенограммы")
+        plt.xticks([0, 0.11, 0.3, 0.41, 0.59, 0.7, 0.89, 1])
+        plt.savefig(name + "_plot.png")
 
-    # 3D graph full
-    fig = pylab.figure()
-    axes = Axes3D(fig)
-    axes.plot3D(Rel_red_arr, Rel_green_arr, Rel_blue_arr, "b")
-    axes.legend()
-    axes.set_xlabel('R')
-    axes.set_ylabel('G')
-    axes.set_zlabel('B')
-    draw_cube(axes)
-    fig.savefig(name + "_plot3D.png")
+    if td_graphs:
+        # 3D graph eng
+        fig = pylab.figure()
+        axes = Axes3D(fig)
+        
+        Rel_red_arr = list(map(lambda x: x/255, Vr_arr))
+        Rel_green_arr = list(map(lambda x: x/255, Vg_arr))
+        Rel_blue_arr = list(map(lambda x: x/255, Vb_arr))
+        axes.plot3D(Rel_red_arr, Rel_blue_arr, Rel_green_arr, "b", label = "full")
+        axes.legend()
+        axes.set_xlabel('R')
+        axes.set_ylabel('B')
+        axes.set_zlabel('G')
+        draw_cube(axes)
 
-    # 3D graph saturation
-    satur = 0.1
-    Sat_red_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
-    Sat_green_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
-    Sat_blue_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+        satur = 0.3
+        Sat_red_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
+        Sat_green_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
+        Sat_blue_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+        axes.plot3D(Sat_green_arr3, Sat_red_arr3, Sat_blue_arr3, "r", label = "30%")
 
-    satur = 0.2
-    Sat_red_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
-    Sat_green_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
-    Sat_blue_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+        axes.plot3D([0, 1], [0, 1], [0, 1], "k--", label = "BW")
 
-    satur = 0.5
-    Sat_red_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
-    Sat_green_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
-    Sat_blue_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
-    
-    fig_satur = pylab.figure()
-    axes_sat = Axes3D(fig_satur)
-    axes_sat.plot3D(Sat_red_arr, Sat_green_arr, Sat_blue_arr, "r--", label = "10%")
-    axes_sat.plot3D(Sat_red_arr2, Sat_green_arr2, Sat_blue_arr2, "g-.", label = "20%")
-    axes_sat.plot3D(Sat_red_arr3, Sat_green_arr3, Sat_blue_arr3, "b-", label = "30%")
-    axes_sat.legend()
-    axes_sat.set_xlabel('R')
-    axes_sat.set_ylabel('G')
-    axes_sat.set_zlabel('B')
-    draw_cube(axes_sat)
+        axes.legend()
+        
+        fig.savefig(name + "_plot3D_eng.png")
+
+        if other:
+            # 3D graph full
+            fig = pylab.figure()
+            axes = Axes3D(fig)
+            axes.plot3D(Rel_red_arr, Rel_blue_arr, Rel_green_arr, "b", label = "full")
+            axes.legend()
+            axes.set_xlabel('R')
+            axes.set_ylabel('B')
+            axes.set_zlabel('G')
+            draw_cube(axes)
             
-    fig_satur.savefig(name + "_plot3D_sat.png")
-    pylab.show()
+            fig.savefig(name + "_plot3D.png")
+
+            # 3D graph saturation
+            satur = 0.1
+            Sat_red_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
+            Sat_green_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
+            Sat_blue_arr = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+
+            satur = 0.2
+            Sat_red_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
+            Sat_green_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
+            Sat_blue_arr2 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+
+            satur = 0.5
+            Sat_red_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_red_arr)))
+            Sat_green_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_green_arr)))
+            Sat_blue_arr3 = list(map(lambda ix: ix[1]*satur + ix[0]*(1-satur)/255, enumerate(Rel_blue_arr)))
+            
+            fig_satur = pylab.figure()
+            axes_sat = Axes3D(fig_satur)
+            axes_sat.plot3D(Sat_red_arr, Sat_green_arr, Sat_blue_arr, "r--", label = "10%")
+            axes_sat.plot3D(Sat_red_arr2, Sat_green_arr2, Sat_blue_arr2, "g-.", label = "20%")
+            axes_sat.plot3D(Sat_red_arr3, Sat_green_arr3, Sat_blue_arr3, "b-", label = "30%")
+            axes_sat.legend()
+            axes_sat.set_xlabel('R')
+            axes_sat.set_ylabel('G')
+            axes_sat.set_zlabel('B')
+            draw_cube(axes_sat)
+                    
+            fig_satur.savefig(name + "_plot3D_sat.png")
+        pylab.show()
 
     
     return (Vr_arr, Vg_arr, Vb_arr)
