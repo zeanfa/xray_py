@@ -9,10 +9,11 @@ def convert(red_array, green_array, blue_array, file_name, scale_name):
     draw=ImageDraw.Draw(col_im)
 
     colour_pix = col_im.load()
+    bw_pix = bw_im.load()
 
     for i in range(width):
         for j in range(height):
-            pixel = bw_im.getpixel((i, j))
+            pixel = bw_pix[i, j]
             colour_pix[i, j] = (int(red_array[pixel[0]]), int(green_array[pixel[0]]), int(blue_array[pixel[0]]))
 
     bw_im.close()
