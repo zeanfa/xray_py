@@ -34,6 +34,9 @@ def show_image(picture, image, image_panel):
     if width > height:
         w_reshape=int(0.9*screen_width/2)
         h_reshape=int(height*w_reshape/width)
+        if h_reshape > image_size:
+            h_reshape = image_size
+            w_reshape = int(width*image_size/height)
     else:
         h_reshape=image_size
         w_reshape=int(width*image_size/height)
