@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-import numpy
+import numpy as np
 import math
 import matplotlib.pyplot as plt
 import pylab
@@ -10,28 +10,31 @@ from itertools import product, combinations
 #draw cube
 def draw_cube(axes):
         r = [0, 1]
-        for s, e in combinations(numpy.array(list(product(r, r, r))), 2):
-            if numpy.sum(numpy.abs(s-e)) == r[1]-r[0]:
+        for s, e in combinations(np.array(list(product(r, r, r))), 2):
+            if np.sum(np.abs(s-e)) == r[1]-r[0]:
                 axes.plot3D(*zip(s, e), "k:")
 
-def solve_sys(number, Ff, Fl, Ef, El, Ef2, El2, Mx, draw, Vr_arr, Vg_arr, Vb_arr, position):
+def solve_sys(number, Ff, Fl, Ef, El, Ef2, El2, Mx, draw, Vr_arr, Vg_arr, Vb_arr, position, grad=255):
     step = 1/(number)
     for i in range(0, number):
-        f1 = Ff/255 + (Fl-Ff)*i/(number*255)
+        f1 = Ff/grad + (Fl-Ff)*i/(number*grad)
         f2 = i* step
-        epsilon = (Ef*Ff*(1-f2)/255 + El*Fl*f2/255)/(Ff*(1-f2)/255 + Fl*f2/255)
-        epsilon2 = (Ef2*Ff*(1-f2)/255 + El2*Fl*f2/255)/(Ff*(1-f2)/255 + Fl*f2/255)
-        Vr = numpy.array([f1, epsilon*f1, epsilon2*f1])
-        col_arr = numpy.linalg.solve(Mx, Vr)
-        Vr_arr.append(int(255*col_arr[0]))
-        Vg_arr.append(int(255*col_arr[1]))
-        Vb_arr.append(int(255*col_arr[2]))
+        epsilon = (Ef*Ff*(1-f2)/grad + El*Fl*f2/grad)/(Ff*(1-f2)/grad + Fl*f2/grad)
+        epsilon2 = (Ef2*Ff*(1-f2)/grad + El2*Fl*f2/grad)/(Ff*(1-f2)/grad + Fl*f2/grad)
+        Vr = np.array([f1, epsilon*f1, epsilon2*f1])
+        col_arr = np.linalg.solve(Mx, Vr)
+        Vr_arr.append(int(grad*col_arr[0]))
+        Vg_arr.append(int(grad*col_arr[1]))
+        Vb_arr.append(int(grad*col_arr[2]))
 
-        draw.rectangle(((position + i)*50,0,(position + i+1)*50, 1000),
-                   fill =(int(round(255*col_arr[0])), int(round(255*col_arr[1])), int(round(255*col_arr[2]))),
-                   outline =(int(round(255*col_arr[0])), int(round(255*col_arr[1])), int(round(255*col_arr[2]))))
+        # draw.rectangle(((position + i)*50,0,(position + i+1)*50, 1000),
+                   # fill =(int(round(grad*col_arr[0])), int(round(grad*col_arr[1])), int(round(grad*col_arr[2]))),
+                   # outline =(int(round(grad*col_arr[0])), int(round(grad*col_arr[1])), int(round(grad*col_arr[2]))))
 
 def get_scale(param, name, bd_graphs, td_graphs, other):
+
+    gap = 0
+    grad = 65535
     
     lr = 0.3
     lg = 0.59
@@ -49,13 +52,13 @@ def get_scale(param, name, bd_graphs, td_graphs, other):
     Ewhite2 = 3.4451
 
     Fblack = 1
-    Fblue = int(lb*255)
-    Fred = int(lr*255)
+    Fblue = int(lb*grad)
+    Fred = int(lr*grad)
     Fmagenta = Fblue + Fred
-    Fgreen = int(lg*255)
+    Fgreen = int(lg*grad)
     Fcyan = Fblue + Fgreen
     Fyellow = Fred + Fgreen
-    Fwhite = 255
+    Fwhite = grad
 
     Emagenta = (Ered*Fred + Eblue*Fblue)/(Fred + Fblue)
     Ecyan = (Egreen*Fgreen + Eblue*Fblue)/(Fgreen + Fblue)
@@ -90,8 +93,7 @@ def get_scale(param, name, bd_graphs, td_graphs, other):
     Vb_arr = [0]
     f_arr = []
 
-    Mx=numpy.array([[lr, lg, lb],[lr*Ered, lg*Egreen, lb*Eblue],[lr*Ered2, lg*Egreen2, lb*Eblue2]])
-    gap = 0
+    Mx=np.array([[lr, lg, lb],[lr*Ered, lg*Egreen, lb*Eblue],[lr*Ered2, lg*Egreen2, lb*Eblue2]])
 
 
     for i in range(len(param) - 1):
@@ -101,25 +103,25 @@ def get_scale(param, name, bd_graphs, td_graphs, other):
         Fright = param_set[param[i+1]][0]
         Eright = param_set[param[i+1]][1]
         E2right = param_set[param[i+1]][2]
-        solve_sys(Fright-Fleft, Fleft, Fright, Eleft, Eright, E2left, E2right, Mx, draw, Vr_arr, Vg_arr, Vb_arr, gap)
+        solve_sys(Fright-Fleft, Fleft, Fright, Eleft, Eright, E2left, E2right, Mx, draw, Vr_arr, Vg_arr, Vb_arr, gap, grad=grad)
         gap += Fright-Fleft
 
-    if len(Vr_arr)<256:
-        Vr_arr.append(255)
-        Vg_arr.append(255)
-        Vb_arr.append(255)
+    if len(Vr_arr)<grad+1:
+        Vr_arr.append(grad)
+        Vg_arr.append(grad)
+        Vb_arr.append(grad)
     
     del draw
     image.save(name + ".png", "PNG")
 
     if bd_graphs:
         # 2D graph
-        Rel_red_arr = list(map(lambda x: x/255, Vr_arr))
-        Rel_green_arr = list(map(lambda x: x/255, Vg_arr))
-        Rel_blue_arr = list(map(lambda x: x/255, Vb_arr))
+        Rel_red_arr = list(map(lambda x: x/grad, Vr_arr))
+        Rel_green_arr = list(map(lambda x: x/grad, Vg_arr))
+        Rel_blue_arr = list(map(lambda x: x/grad, Vb_arr))
 
-        for i in range(0, 256):
-            f_arr.append(i*1/255)
+        print(len(Rel_red_arr))
+        f_arr = np.linspace(0.0, 1.0, grad + 1)
 
         f, (ax1, ax2, ax3) = plt.subplots(3, sharex=True, sharey=True)
         
@@ -132,7 +134,7 @@ def get_scale(param, name, bd_graphs, td_graphs, other):
         ax3.plot(f_arr, Rel_blue_arr, "b")
         ax3.set_ylabel("B", fontsize = 15, rotation = 0, labelpad = 10)
         ax3.plot((0, 1), (1, 1), 'k--')
-        plt.xlabel("Относительная яркость исходной рентгенограммы")
+        plt.xlabel("Relative brightness")
         plt.xticks([0, 0.11, 0.3, 0.41, 0.59, 0.7, 0.89, 1])
         plt.savefig(name + "_plot.png")
 
