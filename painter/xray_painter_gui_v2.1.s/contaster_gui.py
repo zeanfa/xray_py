@@ -45,8 +45,8 @@ class ContrasterGUI:
         img_scale = tk.PhotoImage(width=self.image_size * 2 + 4, height=int(80 / 0.825))
 
         # left image
-        self.img_left_panel = tk.Label(xray_frame, image=img_left, bg="white")
-        self.img_left_panel.pack(side="left")
+        # self.img_left_panel = tk.Label(xray_frame, image=img_left, bg="white")
+        # self.img_left_panel.pack(side="left")
 
         # right image
         self.img_right_panel = tk.Label(xray_frame, image=img_right, bg="white")
@@ -109,10 +109,10 @@ class ContrasterGUI:
             img_array = np.array(self.target_image)
             norm_array = 255*((img_array - np.min(img_array)) / (np.max(img_array) - np.min(img_array)))
             display_img = Image.fromarray(norm_array.astype('uint8'))
-            self.show_image(display_img, self.img_left_panel)
+            # self.show_image(display_img, self.img_left_panel)
             w_reshape = self.show_image(display_img, self.img_right_panel)
-            self.img_scale_panel.config(image=tk.PhotoImage(width=int(2 * w_reshape + 4), height=int(80 / 0.825)))
-            self.scale_width = int(2 * w_reshape + 4)
+            self.img_scale_panel.config(image=tk.PhotoImage(width=int(1 * w_reshape + 4), height=int(80 / 0.825)))
+            self.scale_width = int(1 * w_reshape + 4)
 
     def process(self, *other):
         self.color_scale = 'by'
